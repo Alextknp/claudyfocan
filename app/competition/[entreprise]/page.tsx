@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO } from "@/lib/metiers";
-import type { AO } from "@/lib/metiers";
+import { METIERS, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier } from "@/lib/metiers";
+import type { AO, DecpMarche } from "@/lib/metiers";
 
 interface WonLot {
   aoTitre: string;
@@ -68,9 +68,10 @@ export default async function EntreprisePage({
   const normalizedName = decodeURIComponent(entreprise);
 
   const supabase = createServerClient();
-  const [ouverts, allAttribues] = await Promise.all([
+  const [ouverts, allAttribues, allDecp] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
+    fetchDecpMarches(supabase),
   ]);
 
   const attribues = year
@@ -78,6 +79,21 @@ export default async function EntreprisePage({
     : allAttribues;
 
   const wonLots = findWonLots(attribues, normalizedName);
+
+  // Find DECP marches matching this company (by SIRET or name)
+  const decpFiltered = (year
+    ? allDecp.filter((d) => d.date_notification?.startsWith(year))
+    : allDecp
+  ).filter((d) => {
+    if (d.titulaire_siret && d.titulaire_siret === normalizedName) return true;
+    if (d.titulaire_nom && normalizeCompanyName(d.titulaire_nom) === normalizedName) return true;
+    return false;
+  });
+
+  const decpTotalMontant = decpFiltered.reduce(
+    (sum, d) => sum + (d.montant ? Number(d.montant) : 0), 0
+  );
+  const decpAvgMontant = decpFiltered.length > 0 ? decpTotalMontant / decpFiltered.filter(d => d.montant).length : 0;
 
   // Stats
   const totalMontant = wonLots.reduce(
@@ -211,6 +227,95 @@ export default async function EntreprisePage({
             Aucun lot trouvé pour cette entreprise{year ? ` en ${year}` : ""}.
           </div>
         )}
+
+        {/* DECP Section */}
+        <div className="mt-10">
+          <h2 className="text-sm font-semibold text-emerald-700 mb-1">
+            Marchés DECP (montants réels)
+          </h2>
+          <p className="text-[11px] text-neutral-500 mb-4">
+            Données essentielles de la commande publique — montants réellement attribués
+          </p>
+
+          {decpFiltered.length > 0 && (
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-center">
+                <div className="text-xl font-bold text-emerald-800">{decpFiltered.length}</div>
+                <div className="text-[11px] text-emerald-600">marchés DECP</div>
+              </div>
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-center">
+                <div className="text-xl font-bold text-emerald-800">{decpTotalMontant > 0 ? fmt(decpTotalMontant) : "—"}</div>
+                <div className="text-[11px] text-emerald-600">volume réel</div>
+              </div>
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-center">
+                <div className="text-xl font-bold text-emerald-700">{decpAvgMontant > 0 ? fmt(Math.round(decpAvgMontant)) : "—"}</div>
+                <div className="text-[11px] text-emerald-600">montant moyen</div>
+              </div>
+            </div>
+          )}
+
+          {decpFiltered.length > 0 ? (
+            <div className="space-y-3">
+              {decpFiltered.map((d) => {
+                const metierMatch = METIERS
+                  .filter((m) => decpMatchesMetier(d.objet, m))
+                  .map((m) => m.emoji);
+                return (
+                  <div
+                    key={d.id}
+                    className="rounded-xl bg-white border border-emerald-200 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-[13px] text-neutral-800 leading-snug">
+                          {d.objet ?? "Sans objet"}
+                        </h3>
+                        {d.acheteur_nom && (
+                          <p className="text-[11px] text-neutral-400 mt-0.5">{d.acheteur_nom}</p>
+                        )}
+                        {d.procedure_type && (
+                          <p className="text-[10px] text-neutral-400">{d.procedure_type}</p>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        {d.montant != null && (
+                          <div className="text-sm font-bold text-emerald-700">
+                            {fmt(Number(d.montant))}
+                          </div>
+                        )}
+                        {d.date_notification && (
+                          <div className="text-[10px] text-neutral-400">
+                            {new Date(d.date_notification).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </div>
+                        )}
+                        {d.nb_offres != null && d.nb_offres > 0 && (
+                          <div className="text-[10px] text-neutral-400 mt-0.5">
+                            {d.nb_offres} offre{d.nb_offres > 1 ? "s" : ""} reçue{d.nb_offres > 1 ? "s" : ""}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {metierMatch.length > 0 && (
+                      <div className="mt-2 flex gap-1">
+                        {metierMatch.map((emoji, i) => (
+                          <span key={i} className="text-sm">{emoji}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-emerald-300 p-8 text-center text-xs text-neutral-400">
+              Aucun marché DECP trouvé pour cette entreprise{year ? ` en ${year}` : ""}.
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

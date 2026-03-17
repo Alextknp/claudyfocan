@@ -77,6 +77,45 @@ export function deadlineInfo(d: string): { label: string; cls: string } {
   return { label: `J-${diff}`, cls: "text-neutral-500" };
 }
 
+export interface DecpMarche {
+  id: string;
+  decp_id: string;
+  objet: string | null;
+  montant: number | null;
+  titulaire_siret: string | null;
+  titulaire_nom: string | null;
+  acheteur_nom: string | null;
+  date_notification: string | null;
+  nb_offres: number | null;
+  procedure_type: string | null;
+}
+
+export function decpMatchesMetier(objet: string | null, metier: Metier): boolean {
+  if (!objet) return false;
+  const lower = objet.toLowerCase();
+  return metier.keywords.some((kw) => lower.includes(kw));
+}
+
+export async function fetchDecpMarches(
+  supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
+): Promise<DecpMarche[]> {
+  const all: Record<string, unknown>[] = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data } = await supabase
+      .from("decp_marches")
+      .select("id, decp_id, objet, montant, titulaire_siret, titulaire_nom, acheteur_nom, date_notification, nb_offres, procedure_type")
+      .order("date_notification", { ascending: false })
+      .range(from, from + pageSize - 1);
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  return all as unknown as DecpMarche[];
+}
+
 export async function fetchAO(
   supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>,
   statut: string
