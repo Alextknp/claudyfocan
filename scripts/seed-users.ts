@@ -27,35 +27,35 @@ const USERS = [
     nom: "Menuisier 1",
     metier: "Menuiserie bois",
     cpv_codes: ["45421000", "45421100"],
-    departements: ["75", "92", "93", "94"],
+    departements: ["34"],
     whatsapp: "+33600000001",
   },
   {
     nom: "Cloisonneur 1",
     metier: "Cloisons / Plâtrerie",
     cpv_codes: ["45410000"],
-    departements: ["75", "92", "93", "94"],
+    departements: ["34"],
     whatsapp: "+33600000002",
   },
   {
     nom: "Plafondier 1",
     metier: "Faux plafonds",
     cpv_codes: ["45451000"],
-    departements: ["75", "92", "93", "94"],
+    departements: ["34"],
     whatsapp: "+33600000003",
   },
   {
     nom: "Géomètre 1",
     metier: "Géomètre expert",
     cpv_codes: ["71250000"],
-    departements: ["75", "92", "93", "94", "78", "91", "95", "77"],
+    departements: ["34"],
     whatsapp: "+33600000004",
   },
   {
     nom: "AMO 1",
     metier: "AMO",
     cpv_codes: ["71520000"],
-    departements: ["75", "92", "93", "94", "78", "91", "95", "77"],
+    departements: ["34"],
     whatsapp: "+33600000005",
   },
 ];
@@ -63,10 +63,13 @@ const USERS = [
 async function main() {
   console.log("🚀 Seed des 5 utilisateurs Claudy Focan...\n");
 
+  // Clean existing users first
+  await supabase.from("users").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
   for (const user of USERS) {
     const { data, error } = await supabase
       .from("users")
-      .upsert(user, { onConflict: "whatsapp" })
+      .insert(user)
       .select()
       .single();
 

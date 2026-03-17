@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
-import { fetchBoampByDate, type BoampRecord } from "@/lib/boamp";
+import { fetchBoampByDate, parseDonnees, type BoampRecord } from "@/lib/boamp";
 
 /**
  * POST /api/boamp/fetch
@@ -50,6 +50,8 @@ export async function POST(req: Request) {
 }
 
 function boampToRow(r: BoampRecord) {
+  const donnees = parseDonnees(r.donnees);
+
   return {
     boamp_id: r.idweb || r.id,
     titre: r.objet || "Sans titre",
@@ -60,6 +62,14 @@ function boampToRow(r: BoampRecord) {
     departement: r.code_departement_prestation ?? r.code_departement?.[0] ?? null,
     url_dce: r.url_avis,
     statut: "ouvert",
+    acheteur: r.nomacheteur ?? null,
+    montant_estime: donnees.montant_estime,
+    description_detail: donnees.description_detail,
+    type_procedure: r.type_procedure ?? null,
+    type_marche: r.type_marche?.join(", ") ?? null,
+    descripteur_libelle: r.descripteur_libelle ?? [],
+    url_dce_telechargement: donnees.url_dce_telechargement,
+    lots: donnees.lots,
     raw_json: r,
   };
 }

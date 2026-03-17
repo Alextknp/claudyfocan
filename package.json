@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H localhost -p 3002",
+    "dev": "next dev -H localhost -p 3066",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
     "@supabase/supabase-js": "^2.97.0",
     "dotenv": "^17.3.1",
     "lucide-react": "^0.468.0",

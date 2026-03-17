@@ -25,6 +25,14 @@ export interface AppelOffreRow {
   statut: "ouvert" | "clos" | "attribue" | "annule";
   resume_llm: string | null;
   raw_json: Record<string, unknown> | null;
+  acheteur: string | null;
+  montant_estime: number | null;
+  description_detail: string | null;
+  type_procedure: string | null;
+  type_marche: string | null;
+  descripteur_libelle: string[];
+  url_dce_telechargement: string | null;
+  lots: Array<{ num: string; nom: string; montant: number | null }>;
   created_at: string;
   updated_at: string;
 }
