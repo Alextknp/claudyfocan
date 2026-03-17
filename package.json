@@ -1,0 +1,31 @@
+{
+  "name": "claudyfocan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H localhost -p 3002",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.1.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.18",
+    "@types/node": "22.17.0",
+    "@types/react": "19.2.9",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.2",
+    "eslint-config-next": "16.1.4",
+    "playwright": "^1.58.2",
+    "postcss": "8.5.6",
+    "tailwindcss": "4.1.18",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.2"
+  }
+}
