@@ -50,18 +50,14 @@ export async function POST(req: Request) {
 }
 
 function boampToRow(r: BoampRecord) {
-  const cpvCodes = r.code_cpv
-    ? r.code_cpv.split(",").map((c) => c.trim())
-    : [];
-
   return {
     boamp_id: r.idweb || r.id,
-    titre: r.intitule || "Sans titre",
+    titre: r.objet || "Sans titre",
     objet: r.objet,
     date_pub: r.dateparution,
-    deadline: r.datefindiffusion,
-    cpv_codes: cpvCodes,
-    departement: r.departement_code,
+    deadline: r.datelimitereponse,
+    cpv_codes: r.descripteur_code ?? [],
+    departement: r.code_departement_prestation ?? r.code_departement?.[0] ?? null,
     url_dce: r.url_avis,
     statut: "ouvert",
     raw_json: r,
