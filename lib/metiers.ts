@@ -1,27 +1,25 @@
 export interface Metier {
   nom: string;
-  codes: string[];
+  /** Codes descripteurs BOAMP spécifiques à ce métier */
+  codesDirects: string[];
   keywords: string[];
   accent: string;
   emoji: string;
 }
 
-// Codes élargis : nos codes directs + codes bâtiment qui contiennent souvent nos lots
-const CODES_BATIMENT = ["345", "172", "346", "293", "287", "75", "190", "321", "3"];
-
 export const METIERS: Metier[] = [
-  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: [
+  { nom: "AK Menuiserie", codesDirects: ["222"], keywords: [
     "menuiserie", "menuisier", "agencement", "ébénisterie", "huisserie",
     "fermeture", "serrurerie", "métallerie", "miroiterie", "vitrerie",
     "vitrage", "châssis", "volet", "store", "fenêtre", "fenetre",
   ], accent: "border-l-amber-400", emoji: "🪵" },
-  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: [
+  { nom: "Kortina", codesDirects: ["63", "269"], keywords: [
     "cloison", "cloisonnement", "plâtrerie", "platrerie",
     "faux plafond", "faux-plafond", "plafond suspendu",
     "doublage", "placo", "plaque de plâtre", "ossature métallique",
     "isolation intérieure", "isolation thermique intérieure",
   ], accent: "border-l-orange-400", emoji: "🧱" },
-  { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: [
+  { nom: "AK Maître-Géomètre", codesDirects: ["344", "118"], keywords: [
     "topographie", "topographique", "géomètre", "bornage",
     "géoréférencement", "levé topograph", "cadastr", "relevé",
     "foncier", "géotech", "géodési", "implantation",
@@ -77,8 +75,9 @@ export function matchesMetier(lot: { nom: string }, metier: Metier, aoTitre?: st
   return false;
 }
 
+/** Match uniquement par codes descripteurs directs (pas les codes bâtiment larges) */
 export function aoMatchesMetier(ao: AO, metier: Metier): boolean {
-  return (ao.cpv_codes ?? []).some((c) => metier.codes.includes(c));
+  return (ao.cpv_codes ?? []).some((c) => metier.codesDirects.includes(c));
 }
 
 export function parseCompanies(lotNom: string): string[] {
