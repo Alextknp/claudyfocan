@@ -306,33 +306,52 @@ async function main() {
   const fetchAllFlag = process.argv.includes("--all");
   const descFilter = WATCHED_CODES.map((c) => `'${c}' IN descripteur_code`).join(" OR ");
   const allRecords: Record<string, unknown>[] = [];
-  let offset = 0;
   const limit = 100;
   const maxRecords = fetchAllFlag ? 15000 : 200;
 
   console.log(`📥 Fetch des attributions BOAMP dept 34...\n`);
 
-  while (offset < maxRecords) {
-    // Import TOUTES les attributions du 34 — le filtrage par métier se fait côté lots (keywords)
-    const where = `code_departement='34' AND nature='ATTRIBUTION'`;
-    const params = new URLSearchParams({
-      where,
-      limit: String(limit),
-      offset: String(offset),
-      order_by: "dateparution DESC",
-    });
+  // --- Pass 1 : les plus récentes d'abord (DESC) ---
+  // L'API BOAMP plafonne à 10 000 résultats par requête paginée.
+  // On fait donc 2 passes (DESC + ASC) pour couvrir tout le jeu de données.
+  const seenIds = new Set<string>();
 
-    const url = `${BOAMP_BASE}/catalog/datasets/${DATASET}/records?${params}`;
-    const res = await fetch(url);
-    if (!res.ok) break;
+  for (const pass of ["DESC", "ASC"] as const) {
+    let offset = 0;
+    const passLabel = pass === "DESC" ? "récentes → anciennes" : "anciennes → récentes";
+    console.log(`  🔄 Pass ${pass} (${passLabel})...`);
+    let passCount = 0;
 
-    const data = await res.json();
-    allRecords.push(...data.results);
-    if (data.results.length < limit) break;
-    offset += limit;
+    while (offset < maxRecords) {
+      const where = `code_departement='34' AND nature='ATTRIBUTION'`;
+      const params = new URLSearchParams({
+        where,
+        limit: String(limit),
+        offset: String(offset),
+        order_by: `dateparution ${pass}`,
+      });
+
+      const url = `${BOAMP_BASE}/catalog/datasets/${DATASET}/records?${params}`;
+      const res = await fetch(url);
+      if (!res.ok) break;
+
+      const data = await res.json();
+      for (const r of data.results) {
+        const rid = (r.idweb || r.id) as string;
+        if (!seenIds.has(rid)) {
+          seenIds.add(rid);
+          allRecords.push(r);
+          passCount++;
+        }
+      }
+      if (data.results.length < limit) break;
+      offset += limit;
+    }
+
+    console.log(`     → ${passCount} nouvelles attributions (pass ${pass})`);
   }
 
-  console.log(`📦 ${allRecords.length} attributions récupérées.\n`);
+  console.log(`\n📦 ${allRecords.length} attributions récupérées au total.\n`);
 
   let inserted = 0;
 

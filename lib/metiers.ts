@@ -10,9 +10,23 @@ export interface Metier {
 const CODES_BATIMENT = ["345", "172", "346", "293", "287", "75", "190", "321", "3"];
 
 export const METIERS: Metier[] = [
-  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: ["menuiserie", "menuisier", "agencement", "ébénisterie", "huisserie", "fermeture", "serrurerie", "métallerie"], accent: "border-l-amber-400", emoji: "🪵" },
-  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: ["cloison", "plâtrerie", "faux plafond", "faux-plafond", "plafond suspendu", "doublage", "placo"], accent: "border-l-orange-400", emoji: "🧱" },
-  { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: ["topographie", "topographique", "géomètre", "bornage", "géoréférencement", "levé topograph", "cadastr", "relevé", "foncier", "géotech", "géodési"], accent: "border-l-emerald-400", emoji: "📐" },
+  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: [
+    "menuiserie", "menuisier", "agencement", "ébénisterie", "huisserie",
+    "fermeture", "serrurerie", "métallerie", "miroiterie", "vitrerie",
+    "vitrage", "châssis", "volet", "store", "fenêtre", "fenetre",
+  ], accent: "border-l-amber-400", emoji: "🪵" },
+  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: [
+    "cloison", "cloisonnement", "plâtrerie", "platrerie",
+    "faux plafond", "faux-plafond", "plafond suspendu",
+    "doublage", "placo", "plaque de plâtre", "ossature métallique",
+    "isolation intérieure", "isolation thermique intérieure",
+  ], accent: "border-l-orange-400", emoji: "🧱" },
+  { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: [
+    "topographie", "topographique", "géomètre", "bornage",
+    "géoréférencement", "levé topograph", "cadastr", "relevé",
+    "foncier", "géotech", "géodési", "implantation",
+    "nivellement", "altimétrique", "planimétrique", "recolement",
+  ], accent: "border-l-emerald-400", emoji: "📐" },
 ];
 
 export interface AO {

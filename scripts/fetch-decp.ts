@@ -16,17 +16,21 @@ const DATASET = "decp-v3-marches-valides";
 
 // Mots-clés par métier pour chercher dans l'objet du marché
 const SEARCH_TERMS = [
-  "menuiserie",
-  "menuiseries",
-  "cloison",
-  "cloisons",
-  "faux plafond",
-  "faux-plafond",
-  "plâtrerie",
-  "topographie",
-  "topographique",
-  "géomètre",
-  "bornage",
+  // Menuiserie / serrurerie / vitrage
+  "menuiserie", "menuiseries", "menuisier",
+  "agencement", "huisserie", "serrurerie", "métallerie",
+  "miroiterie", "vitrerie", "vitrage", "châssis", "volet", "store", "fenêtre",
+  // Cloisons / plâtrerie / faux plafonds
+  "cloison", "cloisons", "cloisonnement",
+  "plâtrerie", "platrerie",
+  "faux plafond", "faux-plafond", "plafond suspendu",
+  "doublage", "placo",
+  // Géomètre / topographie
+  "topographie", "topographique",
+  "géomètre", "bornage", "géoréférencement",
+  "géotechnique", "géodésie",
+  "foncier", "nivellement", "implantation",
+  "recolement",
 ];
 
 interface DecpRecord {
