@@ -19,7 +19,7 @@ export const METIERS: Metier[] = [
     "doublage", "placo", "plaque de plâtre", "ossature métallique",
     "isolation intérieure", "isolation thermique intérieure",
   ], accent: "border-l-orange-400", emoji: "🧱" },
-  { nom: "AK Maître-Géomètre", codesDirects: ["344", "118"], keywords: [
+  { nom: "AK Maître-Géomètre", codesDirects: ["344"], keywords: [
     "topographie", "topographique", "géomètre", "bornage",
     "géoréférencement", "levé topograph", "cadastr", "relevé",
     "foncier", "géotech", "géodési", "implantation",
