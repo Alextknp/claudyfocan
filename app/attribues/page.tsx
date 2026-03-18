@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
 import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, fmt, fetchAO } from "@/lib/metiers";
@@ -89,7 +90,7 @@ function AttribueCard({ ao, metier }: { ao: AO; metier: typeof METIERS[number] }
       </div>
 
       {ao.acheteur && (
-        <p className="mt-0.5 text-[11px] text-neutral-500">{ao.acheteur}</p>
+        <Link href={`/acheteur/${encodeURIComponent(ao.acheteur)}`} className="mt-0.5 text-[11px] text-neutral-500 hover:text-cf-blue transition-colors block">{ao.acheteur}</Link>
       )}
       <p className="mt-0.5 text-[10px] text-neutral-400">
         Publié le {new Date(ao.date_pub).toLocaleDateString("fr-FR")}

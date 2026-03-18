@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
 import { getQuote } from "@/lib/quotes";
 
 const LINKS = [
@@ -10,6 +11,46 @@ const LINKS = [
   { href: "/attribues", label: "Attribués" },
   { href: "/competition", label: "Compétition" },
 ];
+
+function SearchInput() {
+  const [q, setQ] = useState("");
+  const router = useRouter();
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    const trimmed = q.trim();
+    if (trimmed) {
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center">
+      <div className="relative">
+        <input
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Rechercher..."
+          className="w-36 sm:w-44 pl-7 pr-2 py-1 text-[11px] rounded-md border border-neutral-200 bg-neutral-50 text-neutral-700 placeholder-neutral-400 focus:outline-none focus:border-cf-blue focus:ring-1 focus:ring-cf-blue/30 transition-colors"
+        />
+        <svg
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
+    </form>
+  );
+}
 
 export default function Nav({ aoCount }: { aoCount: number }) {
   const pathname = usePathname();
@@ -30,9 +71,9 @@ export default function Nav({ aoCount }: { aoCount: number }) {
             />
             <div>
               <div className="text-lg font-black tracking-tight">Mr. Claudy Focan</div>
-              <div className="text-[10px] text-neutral-400">
+              <Link href="/en-cours" className="text-[10px] text-neutral-400 hover:text-cf-blue transition-colors">
                 Hérault (34) &middot; {aoCount} AO ouverts
-              </div>
+              </Link>
             </div>
           </Link>
           <span className="text-[11px] text-neutral-400 italic hidden sm:block max-w-xs text-right">
@@ -42,7 +83,7 @@ export default function Nav({ aoCount }: { aoCount: number }) {
       </header>
 
       <nav className="sticky top-0 z-10 bg-white border-b border-neutral-200">
-        <div className="max-w-[1400px] mx-auto px-6 flex gap-1">
+        <div className="max-w-[1400px] mx-auto px-6 flex items-center gap-1">
           {LINKS.map((l) => {
             const active = pathname === l.href;
             return (
@@ -60,6 +101,9 @@ export default function Nav({ aoCount }: { aoCount: number }) {
               </Link>
             );
           })}
+          <div className="ml-auto">
+            <SearchInput />
+          </div>
         </div>
       </nav>
     </>

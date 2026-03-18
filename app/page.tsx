@@ -191,7 +191,7 @@ export default async function HomePage() {
                       {dl && <span className={`shrink-0 text-xs ${dl.cls}`}>{dl.label}</span>}
                     </div>
                     {ao.acheteur && (
-                      <p className="mt-0.5 text-[11px] text-neutral-500">{ao.acheteur}</p>
+                      <Link href={`/acheteur/${encodeURIComponent(ao.acheteur)}`} className="mt-0.5 text-[11px] text-neutral-500 hover:text-cf-blue transition-colors block">{ao.acheteur}</Link>
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       {badges.map((b) => (
