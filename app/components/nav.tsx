@@ -71,9 +71,11 @@ export default function Nav({ aoCount }: { aoCount: number }) {
             />
             <div>
               <div className="text-lg font-black tracking-tight">Mr. Claudy Focan</div>
-              <span className="text-[10px] text-neutral-400">
-                Hérault (34) &middot; {aoCount} AO ouverts
-              </span>
+              <div className="text-[10px] text-neutral-400">Architecte d&apos;int&eacute;rieur &amp; Expert en march&eacute;s publics</div>
+            </div>
+            <div className="hidden sm:block ml-4 text-right">
+              <div className="text-sm font-bold text-neutral-800">H&eacute;rault (34)</div>
+              <div className="text-xs text-cf-blue font-semibold">{aoCount} AO ouverts</div>
             </div>
           </Link>
           <span className="text-[11px] text-neutral-400 italic hidden sm:block max-w-xs text-right">

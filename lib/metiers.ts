@@ -10,7 +10,7 @@ export interface Metier {
 export const METIERS: Metier[] = [
   { nom: "AK Menuiserie", codesDirects: ["222"], keywords: [
     "menuiserie", "menuisier", "agencement", "ébénisterie", "huisserie",
-    "fermeture", "serrurerie", "métallerie", "miroiterie", "vitrerie",
+    "serrurerie", "métallerie", "miroiterie", "vitrerie",
     "vitrage", "châssis", "volet", "store", "fenêtre", "fenetre",
   ], accent: "border-l-amber-400", emoji: "🪵" },
   { nom: "Kortina", codesDirects: ["63", "269"], keywords: [

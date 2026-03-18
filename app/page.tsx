@@ -224,7 +224,7 @@ export default async function HomePage() {
           ))}
         </div>
 
-        {/* Dernières attributions */}
+        {/* Dernières attributions par segment */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold text-neutral-700">Dernières attributions</h2>
@@ -232,37 +232,44 @@ export default async function HomePage() {
               Tout voir &rarr;
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {recentAttrib.slice(0, 9).map((ao) => {
-              const relevantLots = ao.lots?.filter((lot) =>
-                METIERS.some((m) => matchesMetier(lot, m, ao.titre))
-              ) ?? [];
-              const badge = METIERS.find((m) =>
-                ao.lots?.some((lot) => matchesMetier(lot, m, ao.titre))
-              );
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {METIERS.map((metier) => {
+              const forMetier = recentAttrib
+                .filter((ao) => ao.lots?.some((lot) => matchesMetier(lot, metier, ao.titre)))
+                .slice(0, 3);
               return (
-                <div key={ao.id} className={`rounded-lg bg-white border border-neutral-200 p-3 ${badge ? `border-l-4 ${badge.accent}` : ""}`}>
-                  <h4 className="font-medium text-[12px] leading-snug text-neutral-700 line-clamp-1">
-                    {ao.titre}
-                  </h4>
-                  {ao.acheteur && (
-                    <p className="text-[10px] text-neutral-400 truncate">{ao.acheteur}</p>
-                  )}
-                  {relevantLots.length > 0 && (
-                    <div className="mt-1.5">
-                      {relevantLots.slice(0, 2).map((lot, idx) => {
-                        const arrow = lot.nom.indexOf("→");
-                        const label = arrow !== -1 ? lot.nom.slice(0, arrow).trim() : lot.nom;
-                        const companies = parseCompanies(lot.nom);
+                <div key={metier.nom}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-base">{metier.emoji}</span>
+                    <span className="text-[11px] font-bold text-neutral-500">{metier.nom}</span>
+                  </div>
+                  {forMetier.length === 0 ? (
+                    <p className="text-[10px] text-neutral-300 italic">Pas d&apos;attribution récente</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {forMetier.map((ao) => {
+                        const relevantLots = ao.lots?.filter((lot) => matchesMetier(lot, metier, ao.titre)) ?? [];
                         return (
-                          <div key={idx} className="text-[10px] truncate">
-                            <span className="text-neutral-500">{label}</span>
-                            {companies.length > 0 && (
-                              <span className="text-purple-600"> &rarr; {companies[0]}</span>
-                            )}
-                            {lot.montant != null && (
-                              <span className="font-semibold text-green-700 ml-1">{fmt(Number(lot.montant))}</span>
-                            )}
+                          <div key={ao.id} className={`border-l-4 ${metier.accent} rounded-r-lg bg-white border border-neutral-200 p-2.5`}>
+                            <h4 className="font-medium text-[11px] leading-snug text-neutral-700 line-clamp-1">
+                              {ao.titre}
+                            </h4>
+                            {relevantLots.slice(0, 2).map((lot, idx) => {
+                              const arrow = lot.nom.indexOf("→");
+                              const label = arrow !== -1 ? lot.nom.slice(0, arrow).trim() : lot.nom;
+                              const companies = parseCompanies(lot.nom);
+                              return (
+                                <div key={idx} className="text-[10px] truncate mt-0.5">
+                                  <span className="text-neutral-500">{label}</span>
+                                  {companies.length > 0 && (
+                                    <span className="text-purple-600"> &rarr; {companies[0]}</span>
+                                  )}
+                                  {lot.montant != null && (
+                                    <span className="font-semibold text-green-700 ml-1">{fmt(Number(lot.montant))}</span>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       })}
