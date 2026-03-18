@@ -71,9 +71,9 @@ export default function Nav({ aoCount }: { aoCount: number }) {
             />
             <div>
               <div className="text-lg font-black tracking-tight">Mr. Claudy Focan</div>
-              <Link href="/en-cours" className="text-[10px] text-neutral-400 hover:text-cf-blue transition-colors">
+              <span className="text-[10px] text-neutral-400">
                 Hérault (34) &middot; {aoCount} AO ouverts
-              </Link>
+              </span>
             </div>
           </Link>
           <span className="text-[11px] text-neutral-400 italic hidden sm:block max-w-xs text-right">
