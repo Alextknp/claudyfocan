@@ -18,6 +18,7 @@ export const EXTRA_QUOTES = [
   "Quand on est bon, on est bon.",
   "C'est ça la classe, fieu.",
   "Tout est dans le regard.",
+  "Ou tu sors ou j'te sors.",
 ];
 
 export function getQuote(pathname: string): string {
