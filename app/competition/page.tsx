@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchEntreprisesSiret } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchEntreprisesSiret, lookupSiret } from "@/lib/metiers";
 import type { AO, DecpMarche, EntrepriseSiret } from "@/lib/metiers";
 import { YearFilter } from "@/app/components/year-filter";
 
@@ -37,7 +37,7 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number], siret
 
       for (const company of companies) {
         const normKey = normalizeCompanyName(company);
-        const siretEntry = siretMap?.get(normKey);
+        const siretEntry = siretMap ? lookupSiret(normKey, siretMap) : undefined;
         const key = siretEntry?.siret ?? normKey;
         const existing = stats.get(key);
         const montant = lotMontant / share;
@@ -87,7 +87,7 @@ function buildGlobalLeaderboard(attribues: AO[], siretMap?: Map<string, Entrepri
 
       for (const company of companies) {
         const normKey = normalizeCompanyName(company);
-        const siretEntry = siretMap?.get(normKey);
+        const siretEntry = siretMap ? lookupSiret(normKey, siretMap) : undefined;
         const key = siretEntry?.siret ?? normKey;
         const existing = stats.get(key);
         const montant = lotMontant / share;

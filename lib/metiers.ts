@@ -122,21 +122,23 @@ const FORMES_JURIDIQUES = ["SAS", "SARL", "SA", "STE", "ETS", "ENTREPRISE", "SOC
 
 export function normalizeCompanyName(name: string): string {
   let n = name.trim().toUpperCase()
-    .replace(/\s+/g, " ")         // espaces multiples
-    .replace(/[''`]/g, "'")       // apostrophes
-    .replace(/[.]/g, "")          // points (E.T.I → ETI)
-    .replace(/-/g, " ")           // tirets → espaces
-    .replace(/\s+/g, " ");        // re-clean
+    .replace(/\s+/g, " ")
+    .replace(/[''`]/g, "'")
+    .replace(/[.]/g, "")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ");
 
-  // Retirer formes juridiques en début et fin
-  for (const fj of FORMES_JURIDIQUES) {
-    if (n.startsWith(fj + " ")) { n = n.slice(fj.length + 1); break; }
-  }
-  for (const fj of FORMES_JURIDIQUES) {
-    if (n.endsWith(" " + fj)) { n = n.slice(0, -(fj.length + 1)); break; }
+  // Retirer TOUTES les formes juridiques (début et fin, en boucle)
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const fj of FORMES_JURIDIQUES) {
+      if (n.startsWith(fj + " ")) { n = n.slice(fj.length + 1); changed = true; }
+      if (n.endsWith(" " + fj)) { n = n.slice(0, -(fj.length + 1)); changed = true; }
+    }
   }
 
-  // Retirer "S" final (pluriel) pour normaliser singulier/pluriel
+  // Retirer "S" final (pluriel)
   n = n.trim();
   if (n.endsWith("S") && n.length > 3) {
     n = n.slice(0, -1);
@@ -177,6 +179,27 @@ export interface EntrepriseSiret {
   nom_normalise: string;
   nom: string;
   siret: string;
+}
+
+/** Cherche un SIRET par clé exacte, puis par inclusion si pas trouvé */
+export function lookupSiret(
+  normKey: string,
+  siretMap: Map<string, EntrepriseSiret>
+): EntrepriseSiret | undefined {
+  // 1. Match exact
+  const exact = siretMap.get(normKey);
+  if (exact) return exact;
+
+  // 2. Chercher si normKey est contenu dans une clé connue ou vice-versa (pour "CORTINA" → "JF CORTINA")
+  if (normKey.length >= 4) {
+    for (const [key, entry] of siretMap) {
+      if (key.includes(normKey) || normKey.includes(key)) {
+        return entry;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 export async function fetchEntreprisesSiret(
