@@ -71,7 +71,7 @@ export default function Nav({ aoCount }: { aoCount: number }) {
             />
             <div>
               <div className="text-lg font-black tracking-tight">Mr. Claudy Focan</div>
-              <div className="text-[10px] text-neutral-400">Directeur &amp; Sales Marketing Manager des Abattoirs d&apos;Anderlecht</div>
+              <div className="text-[10px] text-neutral-400">Directeur &amp; Sales Marketing Manager des Abattoirs d&apos;Anderlecht &middot; Photographe de charme</div>
             </div>
           </Link>
           <span className="text-[11px] text-neutral-400 italic hidden sm:block max-w-xs text-right">
