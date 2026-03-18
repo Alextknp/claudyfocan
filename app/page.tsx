@@ -231,69 +231,83 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* Dernières attributions */}
-        {recentAttrib.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-neutral-700">
-                Dernières attributions
-              </h2>
-              <Link href="/attribues" className="text-[11px] font-medium text-cf-blue hover:underline">
-                Tout voir &rarr;
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {recentAttrib.map((ao) => {
-                const relevantLots = ao.lots?.filter((lot) =>
-                  METIERS.some((m) => matchesMetier(lot, m, ao.titre))
-                ) ?? [];
-                return (
-                  <div
-                    key={ao.id}
-                    className="rounded-xl bg-white border border-neutral-200 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-medium text-[12px] leading-snug text-neutral-700 line-clamp-2 flex-1">
-                        {ao.titre}
-                      </h3>
-                      <span className="shrink-0 rounded-full bg-purple-100 text-purple-700 px-2 py-0.5 text-[10px] font-medium">
-                        attribué
-                      </span>
-                    </div>
-                    {ao.acheteur && (
-                      <p className="mt-0.5 text-[10px] text-neutral-400">{ao.acheteur}</p>
-                    )}
-                    {relevantLots.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {relevantLots.slice(0, 3).map((lot, idx) => {
-                          const arrow = lot.nom.indexOf("→");
-                          const label = arrow !== -1 ? lot.nom.slice(0, arrow).trim() : lot.nom;
-                          const companies = parseCompanies(lot.nom);
-                          return (
-                            <div key={idx} className="text-[11px]">
-                              <span className="text-neutral-600">{label}</span>
-                              {companies.length > 0 && (
-                                <span className="text-purple-600"> &rarr; {companies.slice(0, 2).join(", ")}</span>
-                              )}
-                              {lot.montant != null && (
-                                <span className="font-semibold text-green-700 ml-1">{fmt(Number(lot.montant))}</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                        {relevantLots.length > 3 && (
-                          <div className="text-[10px] text-neutral-400 italic">
-                            +{relevantLots.length - 3} autres lots
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+        {/* Dernières attributions par segment */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-neutral-700">
+              Dernières attributions
+            </h2>
+            <Link href="/attribues" className="text-[11px] font-medium text-cf-blue hover:underline">
+              Tout voir &rarr;
+            </Link>
           </div>
-        )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {METIERS.map((metier) => {
+              const recentForMetier = recentAttrib
+                .filter((ao) =>
+                  ao.lots?.some((lot) => matchesMetier(lot, metier, ao.titre))
+                )
+                .slice(0, 4);
+              return (
+                <div key={metier.nom}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">{metier.emoji}</span>
+                    <h3 className="font-bold text-xs text-neutral-600">{metier.nom}</h3>
+                  </div>
+                  {recentForMetier.length === 0 ? (
+                    <div className="text-[11px] text-neutral-400 italic py-4">
+                      Pas d&apos;attribution récente
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {recentForMetier.map((ao) => {
+                        const relevantLots = ao.lots?.filter((lot) =>
+                          matchesMetier(lot, metier, ao.titre)
+                        ) ?? [];
+                        return (
+                          <div
+                            key={ao.id}
+                            className={`border-l-4 ${metier.accent} rounded-r-lg bg-white border border-neutral-200 p-3`}
+                          >
+                            <h4 className="font-medium text-[12px] leading-snug text-neutral-700 line-clamp-2">
+                              {ao.titre}
+                            </h4>
+                            {ao.acheteur && (
+                              <p className="mt-0.5 text-[10px] text-neutral-400">{ao.acheteur}</p>
+                            )}
+                            {relevantLots.length > 0 && (
+                              <div className="mt-1.5 space-y-0.5">
+                                {relevantLots.slice(0, 2).map((lot, idx) => {
+                                  const arrow = lot.nom.indexOf("→");
+                                  const label = arrow !== -1 ? lot.nom.slice(0, arrow).trim() : lot.nom;
+                                  const companies = parseCompanies(lot.nom);
+                                  return (
+                                    <div key={idx} className="text-[11px]">
+                                      <span className="text-neutral-600">{label}</span>
+                                      {companies.length > 0 && (
+                                        <span className="text-purple-600"> &rarr; {companies.slice(0, 2).join(", ")}</span>
+                                      )}
+                                      {lot.montant != null && (
+                                        <span className="font-semibold text-green-700 ml-1">{fmt(Number(lot.montant))}</span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            <div className="mt-1 text-[10px] text-neutral-300">
+                              {new Date(ao.date_pub).toLocaleDateString("fr-FR")}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* DECP stats */}
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5">
