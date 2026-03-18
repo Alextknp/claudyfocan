@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier } from "@/lib/metiers";
-import type { AO, DecpMarche } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchEntreprisesSiret } from "@/lib/metiers";
+import type { AO, DecpMarche, EntrepriseSiret } from "@/lib/metiers";
 import { YearFilter } from "@/app/components/year-filter";
 
 interface CompanyStats {
   name: string;
+  siret: string | null;
   wins: number;
   totalMontant: number;
   count: number;
@@ -15,7 +16,7 @@ interface CompanyStats {
 // Au-delà de ce seuil par lot, c'est une enveloppe accord-cadre pluriannuelle, pas un montant réel
 const MONTANT_MAX_LOT = 5_000_000;
 
-function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
+function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number], siretMap?: Map<string, EntrepriseSiret>) {
   const stats = new Map<string, CompanyStats>();
   let totalLots = 0;
   let totalVolume = 0;
@@ -35,17 +36,20 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
       totalVolume += lotMontant;
 
       for (const company of companies) {
-        const key = normalizeCompanyName(company);
+        const normKey = normalizeCompanyName(company);
+        const siretEntry = siretMap?.get(normKey);
+        const key = siretEntry?.siret ?? normKey;
         const existing = stats.get(key);
         const montant = lotMontant / share;
         if (existing) {
           existing.wins += 1;
           existing.totalMontant += montant;
           existing.count += montant > 0 ? 1 : 0;
-          if (company.length > existing.name.length) existing.name = company;
+          if (company.length > existing.name.length) existing.name = siretEntry?.nom ?? company;
         } else {
           stats.set(key, {
-            name: company,
+            name: siretEntry?.nom ?? company,
+            siret: siretEntry?.siret ?? null,
             wins: 1,
             totalMontant: montant,
             count: montant > 0 ? 1 : 0,
@@ -62,7 +66,7 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
   return { leaderboard, totalLots, totalVolume, marchesCount: aoIds.size };
 }
 
-function buildGlobalLeaderboard(attribues: AO[]) {
+function buildGlobalLeaderboard(attribues: AO[], siretMap?: Map<string, EntrepriseSiret>) {
   const stats = new Map<string, CompanyStats>();
   let totalLots = 0;
   let totalVolume = 0;
@@ -82,17 +86,20 @@ function buildGlobalLeaderboard(attribues: AO[]) {
       totalVolume += lotMontant;
 
       for (const company of companies) {
-        const key = normalizeCompanyName(company);
+        const normKey = normalizeCompanyName(company);
+        const siretEntry = siretMap?.get(normKey);
+        const key = siretEntry?.siret ?? normKey;
         const existing = stats.get(key);
         const montant = lotMontant / share;
         if (existing) {
           existing.wins += 1;
           existing.totalMontant += montant;
           existing.count += montant > 0 ? 1 : 0;
-          if (company.length > existing.name.length) existing.name = company;
+          if (company.length > existing.name.length) existing.name = siretEntry?.nom ?? company;
         } else {
           stats.set(key, {
-            name: company,
+            name: siretEntry?.nom ?? company,
+            siret: siretEntry?.siret ?? null,
             wins: 1,
             totalMontant: montant,
             count: montant > 0 ? 1 : 0,
@@ -161,10 +168,11 @@ export default async function CompetitionPage({
   const { year } = await searchParams;
   const supabase = createServerClient();
 
-  const [ouverts, allAttribues, allDecp] = await Promise.all([
+  const [ouverts, allAttribues, allDecp, siretMap] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
     fetchDecpMarches(supabase),
+    fetchEntreprisesSiret(supabase),
   ]);
 
   const boampYears = allAttribues.map((a) => a.date_pub.slice(0, 4));
@@ -192,7 +200,7 @@ export default async function CompetitionPage({
 
   const columns = METIERS.map((m) => ({
     metier: m,
-    ...buildLeaderboard(attribues, m),
+    ...buildLeaderboard(attribues, m, siretMap),
   }));
 
   const segmentMarches = columns.reduce((s, c) => s + c.marchesCount, 0);
@@ -298,6 +306,9 @@ export default async function CompetitionPage({
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="text-xs font-semibold text-neutral-800 truncate">{entry.name}</div>
+                          {entry.siret && (
+                            <div className="text-[9px] text-neutral-300 font-mono">{entry.siret}</div>
+                          )}
                           <div className="text-[10px] text-neutral-500">
                             {entry.wins} lot{entry.wins > 1 ? "s" : ""} gagné{entry.wins > 1 ? "s" : ""}
                             {entry.totalMontant > 0 && (

@@ -144,6 +144,32 @@ export function decpMatchesMetier(objet: string | null, metier: Metier): boolean
   return metier.keywords.some((kw) => lower.includes(kw));
 }
 
+export interface EntrepriseSiret {
+  nom_normalise: string;
+  nom: string;
+  siret: string;
+}
+
+export async function fetchEntreprisesSiret(
+  supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
+): Promise<Map<string, EntrepriseSiret>> {
+  const map = new Map<string, EntrepriseSiret>();
+  let from = 0;
+  while (true) {
+    const { data } = await supabase
+      .from("entreprises_siret")
+      .select("nom_normalise, nom, siret")
+      .range(from, from + 999);
+    if (!data || data.length === 0) break;
+    for (const r of data) {
+      map.set(r.nom_normalise, r as EntrepriseSiret);
+    }
+    if (data.length < 1000) break;
+    from += 1000;
+  }
+  return map;
+}
+
 export async function fetchDecpMarches(
   supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
 ): Promise<DecpMarche[]> {
