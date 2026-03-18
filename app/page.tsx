@@ -63,10 +63,13 @@ export default async function HomePage() {
     })
     .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
 
-  // Dernières attributions (7 derniers jours)
-  const recentDate = new Date(now.getTime() - 7 * 86_400_000).toISOString().split("T")[0];
+  // Dernières attributions pertinentes (30 derniers jours, filtrées par nos segments)
+  const recentDate = new Date(now.getTime() - 30 * 86_400_000).toISOString().split("T")[0];
   const recentAttrib = attribues
-    .filter((ao) => ao.date_pub >= recentDate)
+    .filter((ao) =>
+      ao.date_pub >= recentDate &&
+      ao.lots?.some((lot) => METIERS.some((m) => matchesMetier(lot, m, ao.titre)))
+    )
     .slice(0, 6);
 
   // Stats par segment
