@@ -86,7 +86,36 @@ export function parseCompanies(lotNom: string): string[] {
   if (arrow === -1) return [];
   const after = lotNom.slice(arrow + 1).trim();
   if (!after) return [];
-  return after.split(",").map((s) => s.trim()).filter(Boolean);
+
+  // Splitter par virgule d'abord
+  let parts = after.split(",").map((s) => s.trim()).filter(Boolean);
+
+  // Éclater les groupements : "Groupement MIRAS/JPB/CARDONNET" → ["MIRAS", "JPB", "CARDONNET"]
+  const expanded: string[] = [];
+  for (const part of parts) {
+    if ((part.toLowerCase().startsWith("groupement") || part.toLowerCase().startsWith("grpt")) && part.includes("/")) {
+      // Retirer le préfixe "Groupement" et splitter sur /
+      const clean = part.replace(/^(groupement|grpt)\s*/i, "");
+      const members = clean.split("/").map((s) => s.trim()).filter(Boolean);
+      expanded.push(...members);
+    } else if (part.includes("/") && !part.includes("http")) {
+      // Aussi splitter les "A/B/C" sans préfixe groupement
+      const members = part.split("/").map((s) => s.trim()).filter(Boolean);
+      // Seulement si chaque partie ressemble à un nom d'entreprise (> 2 chars)
+      if (members.every((m) => m.length > 2)) {
+        expanded.push(...members);
+      } else {
+        expanded.push(part);
+      }
+    } else {
+      expanded.push(part);
+    }
+  }
+
+  // Retirer les mentions "(mandataire)", "(cotraitant)"
+  return expanded
+    .map((s) => s.replace(/\s*\(mandataire\)\s*/gi, "").replace(/\s*\(cotraitant\)\s*/gi, "").trim())
+    .filter((s) => s.length > 1);
 }
 
 const FORMES_JURIDIQUES = ["SAS", "SARL", "SA", "STE", "ETS", "ENTREPRISE", "SOCIETE", "ETABLISSEMENT", "ETABLISSEMENTS", "S A R L", "S.A.R.L", "S.A.S", "EURL", "SASU"];
@@ -154,6 +183,7 @@ export async function fetchEntreprisesSiret(
   supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
 ): Promise<Map<string, EntrepriseSiret>> {
   const map = new Map<string, EntrepriseSiret>();
+  const bySiret = new Map<string, EntrepriseSiret>();
   let from = 0;
   while (true) {
     const { data } = await supabase
@@ -162,10 +192,23 @@ export async function fetchEntreprisesSiret(
       .range(from, from + 999);
     if (!data || data.length === 0) break;
     for (const r of data) {
-      map.set(r.nom_normalise, r as EntrepriseSiret);
+      const entry = r as EntrepriseSiret;
+      map.set(r.nom_normalise, entry);
+      // Aussi indexer par SIRET pour fusionner les variantes
+      if (!bySiret.has(r.siret) || r.nom.length > (bySiret.get(r.siret)?.nom.length ?? 0)) {
+        bySiret.set(r.siret, entry);
+      }
     }
     if (data.length < 1000) break;
     from += 1000;
+  }
+  // Pour chaque SIRET, tous les nom_normalise pointent vers la même entrée (le nom le plus long)
+  for (const [, bestEntry] of bySiret) {
+    for (const [normKey, entry] of map) {
+      if (entry.siret === bestEntry.siret && entry !== bestEntry) {
+        map.set(normKey, bestEntry);
+      }
+    }
   }
   return map;
 }
