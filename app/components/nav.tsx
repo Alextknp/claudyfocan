@@ -22,12 +22,11 @@ export default function Nav({ aoCount }: { aoCount: number }) {
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/claudy.gif"
+              src="/claudy-logo.png"
               alt="Claudy Focan"
-              width={40}
-              height={40}
-              className="rounded-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              width={44}
+              height={44}
+              className="rounded-full object-cover border-2 border-neutral-200"
             />
             <div>
               <div className="text-lg font-black tracking-tight">Mr. Claudy Focan</div>

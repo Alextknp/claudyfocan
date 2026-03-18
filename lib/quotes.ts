@@ -1,32 +1,56 @@
-/** Répliques de Claudy Focan (Dikkenek) — une par page */
+/** Répliques + gifs de Claudy Focan (Dikkenek) — un par page */
 
-export const QUOTES: Record<string, string> = {
-  "/": "Moi c'est Claudy, je fais la veille.",
-  "/en-cours": "On est pas bien là ? Paisibles, à la fraîche...",
-  "/expires": "La patience est la mère de toutes les vertus, fieu.",
-  "/attribues": "Pas de bras, pas de chocolat.",
-  "/competition": "La chance, c'est comme le Tour de France, tu l'attends longtemps et ça passe vite.",
+interface PageBranding {
+  quote: string;
+  gif: string;
+}
+
+const PAGE_BRANDING: Record<string, PageBranding> = {
+  "/": {
+    quote: "Moi c'est Claudy, je fais la veille.",
+    gif: "/gifs/shooting.gif",
+  },
+  "/en-cours": {
+    quote: "On est pas bien là ? Paisibles, à la fraîche...",
+    gif: "/gifs/annoyed.gif",
+  },
+  "/expires": {
+    quote: "Je suis en bout du rouleau !",
+    gif: "/gifs/rouleau.gif",
+  },
+  "/attribues": {
+    quote: "Il est tout à fait fou c'type !",
+    gif: "/gifs/fou.gif",
+  },
+  "/competition": {
+    quote: "Va te faire refaire ! Alien.",
+    gif: "/gifs/alien.gif",
+  },
 };
 
-/** Répliques supplémentaires pour les sous-pages */
-export const EXTRA_QUOTES = [
-  "Faut pas pousser mémé dans les orties.",
-  "C'est pas faux.",
-  "Tu vois le genre ? Le genre... focan.",
-  "Moi j'ai un QI de 146, fieu.",
-  "J'suis un homme de terrain, moi.",
-  "Quand on est bon, on est bon.",
-  "C'est ça la classe, fieu.",
-  "Tout est dans le regard.",
-  "Ou tu sors ou j'te sors.",
+const EXTRA_BRANDING: PageBranding[] = [
+  { quote: "Ou tu sors ou j'te sors.", gif: "/gifs/wouhou.gif" },
+  { quote: "Allo Maman ! Claudy à l'appareil...", gif: "/gifs/carjacker.gif" },
+  { quote: "He tu n'me vois pas ? Tu n'me vois pas ? Wouhou !", gif: "/gifs/wouhou.gif" },
+  { quote: "Quand on est bon, on est bon.", gif: "/gifs/shooting.gif" },
+  { quote: "C'est ça la classe, fieu.", gif: "/gifs/annoyed.gif" },
+  { quote: "Moi j'ai un QI de 146, fieu.", gif: "/gifs/carjacker.gif" },
 ];
 
 export function getQuote(pathname: string): string {
-  if (QUOTES[pathname]) return QUOTES[pathname];
-  // Pour les sous-pages (/competition/xxx), hash du pathname pour avoir toujours la même
+  if (PAGE_BRANDING[pathname]) return PAGE_BRANDING[pathname].quote;
   let hash = 0;
   for (let i = 0; i < pathname.length; i++) {
     hash = ((hash << 5) - hash + pathname.charCodeAt(i)) | 0;
   }
-  return EXTRA_QUOTES[Math.abs(hash) % EXTRA_QUOTES.length];
+  return EXTRA_BRANDING[Math.abs(hash) % EXTRA_BRANDING.length].quote;
+}
+
+export function getGif(pathname: string): string {
+  if (PAGE_BRANDING[pathname]) return PAGE_BRANDING[pathname].gif;
+  let hash = 0;
+  for (let i = 0; i < pathname.length; i++) {
+    hash = ((hash << 5) - hash + pathname.charCodeAt(i)) | 0;
+  }
+  return EXTRA_BRANDING[Math.abs(hash) % EXTRA_BRANDING.length].gif;
 }
