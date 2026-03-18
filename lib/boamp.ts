@@ -15,12 +15,25 @@ const DATASET = "boamp";
  * Ce ne sont PAS des CPV — c'est le référentiel propre au BOAMP.
  */
 export const DESCRIPTEURS = {
+  // Nos métiers directs
   menuiserie: { code: "222", label: "Menuiserie" },
   cloisons_faux_plafonds: { code: "63", label: "Cloison, faux plafond" },
   platrerie: { code: "269", label: "Plâtrerie" },
-  topographie: { code: "344", label: "Topographie" }, // Géomètre expert
-  ingenierie: { code: "455", label: "Ingénierie" }, // AMO / MOE
-  etude: { code: "118", label: "Etude" }, // Études géomètre-expert
+  topographie: { code: "344", label: "Topographie" },
+  ingenierie: { code: "455", label: "Ingénierie" },
+  etude: { code: "118", label: "Etude" },
+  // Codes larges bâtiment (contiennent souvent des lots pour nos métiers)
+  tce: { code: "345", label: "Tous corps d'état" },
+  gros_oeuvre: { code: "172", label: "Gros oeuvre" },
+  batiment: { code: "346", label: "Travaux de bâtiment" },
+  renovation: { code: "293", label: "Rénovation" },
+  rehabilitation: { code: "287", label: "Réhabilitation" },
+  construction: { code: "75", label: "Construction" },
+  isolation: { code: "190", label: "Isolation" },
+  peinture: { code: "255", label: "Peinture" },
+  revetement: { code: "298", label: "Revêtement" },
+  serrurerie: { code: "321", label: "Serrurerie" },
+  agencement: { code: "3", label: "Agencement" },
 } as const;
 
 /** Tous les codes descripteurs qu'on surveille */

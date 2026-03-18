@@ -6,9 +6,12 @@ export interface Metier {
   emoji: string;
 }
 
+// Codes élargis : nos codes directs + codes bâtiment qui contiennent souvent nos lots
+const CODES_BATIMENT = ["345", "172", "346", "293", "287", "75", "190", "321", "3"];
+
 export const METIERS: Metier[] = [
-  { nom: "AK Menuiserie", codes: ["222"], keywords: ["menuiserie", "menuisier", "agencement", "ébénisterie"], accent: "border-l-amber-400", emoji: "🪵" },
-  { nom: "Kortina", codes: ["63", "269"], keywords: ["cloison", "plâtrerie", "faux plafond", "faux-plafond", "plafond suspendu", "doublage"], accent: "border-l-orange-400", emoji: "🧱" },
+  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: ["menuiserie", "menuisier", "agencement", "ébénisterie"], accent: "border-l-amber-400", emoji: "🪵" },
+  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: ["cloison", "plâtrerie", "faux plafond", "faux-plafond", "plafond suspendu", "doublage"], accent: "border-l-orange-400", emoji: "🧱" },
   { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: ["topographie", "topographique", "géomètre", "bornage", "géoréférencement", "levé topograph", "cadastr"], accent: "border-l-emerald-400", emoji: "📐" },
 ];
 
