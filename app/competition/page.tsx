@@ -22,7 +22,6 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
   const aoIds = new Set<string>();
 
   for (const ao of attribues) {
-    if (!aoMatchesMetier(ao, metier)) continue;
     if (!ao.lots) continue;
     for (const lot of ao.lots) {
       if (!matchesMetier(lot, metier)) continue;

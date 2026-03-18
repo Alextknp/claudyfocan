@@ -1,6 +1,6 @@
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, fmt, fetchAO } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, fmt, fetchAO } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 
 export default async function ExpiresPage() {
@@ -17,7 +17,9 @@ export default async function ExpiresPage() {
 
   const columns = METIERS.map((m) => ({
     metier: m,
-    aos: expires.filter((ao) => aoMatchesMetier(ao, m)),
+    aos: expires.filter((ao) =>
+      ao.lots?.some((lot) => matchesMetier(lot, m)) || aoMatchesMetier(ao, m)
+    ),
   }));
 
   return (

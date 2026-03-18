@@ -14,7 +14,9 @@ export default async function EnCoursPage() {
 
   const columns = METIERS.map((m) => ({
     metier: m,
-    aos: enCours.filter((ao) => aoMatchesMetier(ao, m)),
+    aos: enCours.filter((ao) =>
+      ao.lots?.some((lot) => matchesMetier(lot, m)) || aoMatchesMetier(ao, m)
+    ),
   }));
 
   return (

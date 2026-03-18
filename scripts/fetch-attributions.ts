@@ -308,12 +308,13 @@ async function main() {
   const allRecords: Record<string, unknown>[] = [];
   let offset = 0;
   const limit = 100;
-  const maxRecords = fetchAllFlag ? 5000 : 200;
+  const maxRecords = fetchAllFlag ? 15000 : 200;
 
   console.log(`📥 Fetch des attributions BOAMP dept 34...\n`);
 
   while (offset < maxRecords) {
-    const where = `code_departement='34' AND nature='ATTRIBUTION' AND (${descFilter})`;
+    // Import TOUTES les attributions du 34 — le filtrage par métier se fait côté lots (keywords)
+    const where = `code_departement='34' AND nature='ATTRIBUTION'`;
     const params = new URLSearchParams({
       where,
       limit: String(limit),

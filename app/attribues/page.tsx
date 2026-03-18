@@ -27,7 +27,10 @@ export default async function AttribuesPage({
 
   const columns = METIERS.map((m) => ({
     metier: m,
-    aos: attribues.filter((ao) => aoMatchesMetier(ao, m)),
+    // Filtrage par keywords sur les lots, pas par CPV codes de l'AO
+    aos: attribues.filter((ao) =>
+      ao.lots?.some((lot) => matchesMetier(lot, m))
+    ),
   }));
 
   return (
