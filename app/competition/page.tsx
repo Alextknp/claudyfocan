@@ -187,12 +187,21 @@ export default async function CompetitionPage({
     ? allDecp.filter((d) => d.date_notification?.startsWith(year))
     : allDecp;
 
-  const global = buildGlobalLeaderboard(attribues);
+  // Stats globales
+  const totalAttribues = attribues.length;
+  const totalLots = attribues.reduce((sum, ao) => sum + (ao.lots?.length ?? 0), 0);
+  const totalLotsAvecTitulaire = attribues.reduce(
+    (sum, ao) => sum + (ao.lots?.filter((l) => l.nom.includes("→")).length ?? 0), 0
+  );
 
   const columns = METIERS.map((m) => ({
     metier: m,
     ...buildLeaderboard(attribues, m),
   }));
+
+  const segmentMarches = columns.reduce((s, c) => s + c.marchesCount, 0);
+  const segmentLots = columns.reduce((s, c) => s + c.totalLots, 0);
+  const segmentVolume = columns.reduce((s, c) => s + c.totalVolume, 0);
 
   const decpColumns = METIERS.map((m) => ({
     metier: m,
@@ -209,6 +218,36 @@ export default async function CompetitionPage({
             Compétition {year && `— ${year}`}
           </h2>
           <YearFilter years={years} current={year ?? "all"} basePath="/competition" />
+        </div>
+
+        {/* Stats globales */}
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-bold text-neutral-800">{totalAttribues}</div>
+              <div className="text-[10px] text-neutral-500">marchés attribués</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-neutral-800">{totalLots}</div>
+              <div className="text-[10px] text-neutral-500">lots total</div>
+            </div>
+            <div className="text-center border-l border-neutral-200">
+              <div className="text-lg font-bold text-cf-blue">{segmentMarches}</div>
+              <div className="text-[10px] text-neutral-500">nos segments</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-cf-blue">{segmentLots}</div>
+              <div className="text-[10px] text-neutral-500">lots pertinents</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-700">{fmt(segmentVolume)}</div>
+              <div className="text-[10px] text-neutral-500">volume segments</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-neutral-400">{Math.round(segmentMarches * 100 / Math.max(totalAttribues, 1))}%</div>
+              <div className="text-[10px] text-neutral-500">de couverture</div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
