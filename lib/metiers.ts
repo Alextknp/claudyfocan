@@ -55,16 +55,30 @@ export function parseCompanies(lotNom: string): string[] {
   return after.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-const FORMES_JURIDIQUES = ["SAS", "SARL", "SA", "STE", "ETS", "ENTREPRISE", "SOCIETE", "ETABLISSEMENT", "ETABLISSEMENTS", "S A R L", "S.A.R.L", "S.A.S"];
+const FORMES_JURIDIQUES = ["SAS", "SARL", "SA", "STE", "ETS", "ENTREPRISE", "SOCIETE", "ETABLISSEMENT", "ETABLISSEMENTS", "S A R L", "S.A.R.L", "S.A.S", "EURL", "SASU"];
 
 export function normalizeCompanyName(name: string): string {
-  let n = name.trim().toUpperCase().replace(/\s+/g, " ");
+  let n = name.trim().toUpperCase()
+    .replace(/\s+/g, " ")         // espaces multiples
+    .replace(/[''`]/g, "'")       // apostrophes
+    .replace(/[.]/g, "")          // points (E.T.I → ETI)
+    .replace(/-/g, " ")           // tirets → espaces
+    .replace(/\s+/g, " ");        // re-clean
+
+  // Retirer formes juridiques en début et fin
   for (const fj of FORMES_JURIDIQUES) {
     if (n.startsWith(fj + " ")) { n = n.slice(fj.length + 1); break; }
   }
   for (const fj of FORMES_JURIDIQUES) {
     if (n.endsWith(" " + fj)) { n = n.slice(0, -(fj.length + 1)); break; }
   }
+
+  // Retirer "S" final (pluriel) pour normaliser singulier/pluriel
+  n = n.trim();
+  if (n.endsWith("S") && n.length > 3) {
+    n = n.slice(0, -1);
+  }
+
   return n.trim();
 }
 

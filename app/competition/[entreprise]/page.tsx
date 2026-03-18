@@ -61,11 +61,16 @@ export default async function EntreprisePage({
   searchParams,
 }: {
   params: Promise<{ entreprise: string }>;
-  searchParams: Promise<{ year?: string }>;
+  searchParams: Promise<{ year?: string; metier?: string }>;
 }) {
   const { entreprise } = await params;
-  const { year } = await searchParams;
+  const { year, metier: metierParam } = await searchParams;
   const normalizedName = decodeURIComponent(entreprise);
+
+  // Résoudre le métier sélectionné
+  const activeMetier = metierParam
+    ? METIERS.find((m) => m.nom === metierParam)
+    : null;
 
   const supabase = createServerClient();
   const [ouverts, allAttribues, allDecp] = await Promise.all([
@@ -78,10 +83,17 @@ export default async function EntreprisePage({
     ? allAttribues.filter((a) => a.date_pub.startsWith(year))
     : allAttribues;
 
-  const wonLots = findWonLots(attribues, normalizedName);
+  let wonLots = findWonLots(attribues, normalizedName);
+
+  // Filtrer par métier si spécifié
+  if (activeMetier) {
+    wonLots = wonLots.filter((l) =>
+      matchesMetier({ nom: l.lotNom }, activeMetier)
+    );
+  }
 
   // Find DECP marches matching this company (by SIRET or name)
-  const decpFiltered = (year
+  let decpFiltered = (year
     ? allDecp.filter((d) => d.date_notification?.startsWith(year))
     : allDecp
   ).filter((d) => {
@@ -89,6 +101,13 @@ export default async function EntreprisePage({
     if (d.titulaire_nom && normalizeCompanyName(d.titulaire_nom) === normalizedName) return true;
     return false;
   });
+
+  // Filtrer DECP par métier aussi
+  if (activeMetier) {
+    decpFiltered = decpFiltered.filter((d) =>
+      decpMatchesMetier(d.objet, activeMetier)
+    );
+  }
 
   const decpTotalMontant = decpFiltered.reduce(
     (sum, d) => sum + (d.montant ? Number(d.montant) : 0), 0
@@ -125,7 +144,7 @@ export default async function EntreprisePage({
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-neutral-400 mb-4">
           <Link href={`/competition${year ? `?year=${year}` : ""}`} className="hover:text-cf-blue">
-            Compétition
+            Compétition {activeMetier ? `(${activeMetier.emoji} ${activeMetier.nom})` : ""}
           </Link>
           <span>/</span>
           <span className="text-neutral-600">{displayName}</span>

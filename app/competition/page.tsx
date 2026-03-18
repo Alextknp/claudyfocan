@@ -194,7 +194,7 @@ export default async function CompetitionPage({
                     return (
                       <Link
                         key={entry.name}
-                        href={`/competition/${encodeURIComponent(normalizeCompanyName(entry.name))}${year ? `?year=${year}` : ""}`}
+                        href={`/competition/${encodeURIComponent(normalizeCompanyName(entry.name))}?metier=${encodeURIComponent(col.metier.nom)}${year ? `&year=${year}` : ""}`}
                         className="flex items-center gap-2 bg-white border border-neutral-200 rounded-lg px-3 py-2 hover:shadow-md hover:border-cf-blue transition-all"
                       >
                         <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
