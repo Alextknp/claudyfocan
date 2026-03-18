@@ -18,7 +18,7 @@ export default async function ExpiresPage() {
   const columns = METIERS.map((m) => ({
     metier: m,
     aos: expires.filter((ao) =>
-      ao.lots?.some((lot) => matchesMetier(lot, m)) || aoMatchesMetier(ao, m)
+      ao.lots?.some((lot) => matchesMetier(lot, m, ao.titre)) || aoMatchesMetier(ao, m)
     ),
   }));
 

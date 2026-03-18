@@ -10,9 +10,9 @@ export interface Metier {
 const CODES_BATIMENT = ["345", "172", "346", "293", "287", "75", "190", "321", "3"];
 
 export const METIERS: Metier[] = [
-  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: ["menuiserie", "menuisier", "agencement", "ébénisterie"], accent: "border-l-amber-400", emoji: "🪵" },
-  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: ["cloison", "plâtrerie", "faux plafond", "faux-plafond", "plafond suspendu", "doublage"], accent: "border-l-orange-400", emoji: "🧱" },
-  { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: ["topographie", "topographique", "géomètre", "bornage", "géoréférencement", "levé topograph", "cadastr"], accent: "border-l-emerald-400", emoji: "📐" },
+  { nom: "AK Menuiserie", codes: ["222", ...CODES_BATIMENT], keywords: ["menuiserie", "menuisier", "agencement", "ébénisterie", "huisserie", "fermeture", "serrurerie", "métallerie"], accent: "border-l-amber-400", emoji: "🪵" },
+  { nom: "Kortina", codes: ["63", "269", ...CODES_BATIMENT], keywords: ["cloison", "plâtrerie", "faux plafond", "faux-plafond", "plafond suspendu", "doublage", "placo"], accent: "border-l-orange-400", emoji: "🧱" },
+  { nom: "AK Maître-Géomètre", codes: ["344", "118"], keywords: ["topographie", "topographique", "géomètre", "bornage", "géoréférencement", "levé topograph", "cadastr", "relevé", "foncier", "géotech", "géodési"], accent: "border-l-emerald-400", emoji: "📐" },
 ];
 
 export interface AO {
@@ -40,10 +40,27 @@ export function fmt(n: number): string {
   return `${n}€`;
 }
 
-export function matchesMetier(lot: { nom: string }, metier: Metier): boolean {
+export function matchesMetier(lot: { nom: string }, metier: Metier, aoTitre?: string): boolean {
   const arrow = lot.nom.indexOf("→");
   const lotName = (arrow === -1 ? lot.nom : lot.nom.slice(0, arrow)).toLowerCase();
-  return metier.keywords.some((kw) => lotName.includes(kw));
+
+  // 1. Chercher dans le nom du lot (avant →)
+  if (metier.keywords.some((kw) => lotName.includes(kw))) return true;
+
+  // 2. Pour les lots génériques ("Lot 1", "Lot unique"), chercher dans le titre de l'AO
+  const isGeneric = /^lot\s*\d*\s*$/i.test(lotName.trim()) || lotName.trim() === "lot unique";
+  if (isGeneric && aoTitre) {
+    const titre = aoTitre.toLowerCase();
+    if (metier.keywords.some((kw) => titre.includes(kw))) return true;
+  }
+
+  // 3. Chercher dans le nom de l'entreprise (après →) — "MENUISERIE POUJOL" matche menuiserie
+  if (arrow !== -1) {
+    const companyPart = lot.nom.slice(arrow + 1).toLowerCase();
+    if (metier.keywords.some((kw) => companyPart.includes(kw))) return true;
+  }
+
+  return false;
 }
 
 export function aoMatchesMetier(ao: AO, metier: Metier): boolean {

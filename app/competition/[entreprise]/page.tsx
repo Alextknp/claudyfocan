@@ -35,7 +35,7 @@ function findWonLots(attribues: AO[], normalizedName: string): WonLot[] {
       );
 
       const metierMatch = METIERS
-        .filter((m) => matchesMetier(lot, m))
+        .filter((m) => matchesMetier(lot, m, ao.titre))
         .map((m) => m.emoji);
 
       results.push({

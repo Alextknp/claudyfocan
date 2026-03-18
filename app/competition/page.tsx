@@ -24,7 +24,7 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
   for (const ao of attribues) {
     if (!ao.lots) continue;
     for (const lot of ao.lots) {
-      if (!matchesMetier(lot, metier)) continue;
+      if (!matchesMetier(lot, metier, ao.titre)) continue;
       const companies = parseCompanies(lot.nom);
       if (companies.length === 0) continue;
       totalLots++;
@@ -69,12 +69,9 @@ function buildGlobalLeaderboard(attribues: AO[]) {
   const aoIds = new Set<string>();
 
   for (const ao of attribues) {
-    // Doit matcher au moins un métier
-    const matchesAny = METIERS.some((m) => aoMatchesMetier(ao, m));
-    if (!matchesAny) continue;
     if (!ao.lots) continue;
     for (const lot of ao.lots) {
-      const matchedMetier = METIERS.some((m) => matchesMetier(lot, m));
+      const matchedMetier = METIERS.some((m) => matchesMetier(lot, m, ao.titre));
       if (!matchedMetier) continue;
       const companies = parseCompanies(lot.nom);
       if (companies.length === 0) continue;

@@ -15,7 +15,7 @@ export default async function EnCoursPage() {
   const columns = METIERS.map((m) => ({
     metier: m,
     aos: enCours.filter((ao) =>
-      ao.lots?.some((lot) => matchesMetier(lot, m)) || aoMatchesMetier(ao, m)
+      ao.lots?.some((lot) => matchesMetier(lot, m, ao.titre)) || aoMatchesMetier(ao, m)
     ),
   }));
 
@@ -96,7 +96,7 @@ function EnCoursCard({ ao, metier }: { ao: AO; metier: typeof METIERS[number] })
       {ao.lots?.length > 0 && (
         <div className="mt-2 space-y-0.5">
           {ao.lots.map((lot, idx) => {
-            const relevant = matchesMetier(lot, metier);
+            const relevant = matchesMetier(lot, metier, ao.titre);
             return (
               <div key={`${lot.num}-${idx}`} className={`flex items-baseline gap-1.5 text-[11px] ${relevant ? "" : "opacity-40"}`}>
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 relative top-[2px] ${relevant ? "bg-amber-400" : "bg-neutral-300"}`} />

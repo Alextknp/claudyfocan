@@ -29,7 +29,7 @@ export default async function AttribuesPage({
     metier: m,
     // Filtrage par keywords sur les lots, pas par CPV codes de l'AO
     aos: attribues.filter((ao) =>
-      ao.lots?.some((lot) => matchesMetier(lot, m))
+      ao.lots?.some((lot) => matchesMetier(lot, m, ao.titre))
     ),
   }));
 
@@ -74,7 +74,7 @@ export default async function AttribuesPage({
 }
 
 function AttribueCard({ ao, metier }: { ao: AO; metier: typeof METIERS[number] }) {
-  const relevantLots = ao.lots?.filter((lot) => matchesMetier(lot, metier)) ?? [];
+  const relevantLots = ao.lots?.filter((lot) => matchesMetier(lot, metier, ao.titre)) ?? [];
   const hiddenCount = (ao.lots?.length ?? 0) - relevantLots.length;
 
   return (
