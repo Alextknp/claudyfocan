@@ -240,8 +240,8 @@ export async function fetchNavCounts(
 ): Promise<{ enCours: number; enAttente: number; attribues: number; competition: number }> {
   const [ouvertsRes, attribuesRes, siretRes] = await Promise.all([
     supabase.from("appels_offres").select("deadline").eq("departement", "34").eq("statut", "ouvert"),
-    supabase.from("appels_offres").select("id", { count: "exact" }).eq("departement", "34").eq("statut", "attribue"),
-    supabase.from("entreprises_siret").select("id", { count: "exact" }),
+    supabase.from("appels_offres").select("*", { count: "exact", head: true }).eq("departement", "34").eq("statut", "attribue"),
+    supabase.from("entreprises_siret").select("*", { count: "exact", head: true }),
   ]);
 
   const now = new Date();
@@ -252,8 +252,8 @@ export async function fetchNavCounts(
   return {
     enCours,
     enAttente,
-    attribues: attribuesRes.data?.length ?? 0,
-    competition: siretRes.data?.length ?? 0,
+    attribues: attribuesRes.count ?? 0,
+    competition: siretRes.count ?? 0,
   };
 }
 
