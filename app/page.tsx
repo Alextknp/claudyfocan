@@ -11,21 +11,11 @@ export default async function EnCoursPage() {
   const enCours = ouverts.filter(
     (ao) => !ao.deadline || new Date(ao.deadline) >= now
   );
-  const expires = ouverts.filter(
-    (ao) => ao.deadline && new Date(ao.deadline) < now
-  );
 
   const columns = METIERS.map((m) => ({
     metier: m,
     aos: enCours.filter((ao) => aoMatchesMetier(ao, m)),
   }));
-
-  const expiredColumns = METIERS.map((m) => ({
-    metier: m,
-    aos: expires.filter((ao) => aoMatchesMetier(ao, m)),
-  }));
-
-  const hasExpired = expiredColumns.some((c) => c.aos.length > 0);
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -56,56 +46,6 @@ export default async function EnCoursPage() {
           ))}
         </div>
 
-        {/* Clos sans résultat */}
-        {hasExpired && (
-          <div className="mt-10">
-            <h2 className="text-sm font-semibold text-neutral-500 mb-4">
-              Clos sans résultat ({expires.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {expiredColumns.map((col) => (
-                <div key={`exp-${col.metier.nom}`}>
-                  {col.aos.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-xl opacity-50">{col.metier.emoji}</span>
-                        <h3 className="font-bold text-sm text-neutral-400">{col.metier.nom}</h3>
-                        <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-bold text-neutral-400">
-                          {col.aos.length}
-                        </span>
-                      </div>
-                      <div className="space-y-2 opacity-60">
-                        {col.aos.map((ao) => (
-                          <div
-                            key={ao.id}
-                            className="border-l-4 border-l-neutral-300 rounded-r-lg bg-white border border-neutral-200 p-3"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="font-medium text-[12px] leading-snug text-neutral-600 line-clamp-2 flex-1">
-                                {ao.titre}
-                              </h3>
-                              <span className="shrink-0 rounded-full bg-neutral-100 text-neutral-400 px-2 py-0.5 text-[10px] font-medium">
-                                clos
-                              </span>
-                            </div>
-                            {ao.acheteur && (
-                              <p className="mt-0.5 text-[10px] text-neutral-400">{ao.acheteur}</p>
-                            )}
-                            {ao.deadline && (
-                              <p className="mt-0.5 text-[10px] text-neutral-400">
-                                Limite : {new Date(ao.deadline).toLocaleDateString("fr-FR")}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );
