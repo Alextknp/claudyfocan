@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "En cours" },
+  { href: "/en-cours", label: "En cours" },
   { href: "/expires", label: "En attente" },
   { href: "/attribues", label: "Attribués" },
   { href: "/competition", label: "Compétition" },
@@ -18,7 +18,7 @@ export default function Nav({ aoCount }: { aoCount: number }) {
       <header className="bg-white border-b border-neutral-200 px-6 py-4">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-lg font-bold tracking-tight">Claudy</h1>
+            <Link href="/" className="text-lg font-bold tracking-tight hover:text-cf-blue transition-colors">Claudy</Link>
             <span className="text-xs text-neutral-400">
               Hérault (34) &middot; {aoCount} AO ouverts
             </span>
