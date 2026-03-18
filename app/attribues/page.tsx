@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, fmt, fetchAO } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, fmt, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 import { YearFilter } from "@/app/components/year-filter";
 
@@ -13,9 +13,10 @@ export default async function AttribuesPage({
   const { year } = await searchParams;
   const supabase = createServerClient();
 
-  const [ouverts, allAttribues] = await Promise.all([
+  const [ouverts, allAttribues, navCounts] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
+    fetchNavCounts(supabase),
   ]);
 
   const years = Array.from(
@@ -36,7 +37,7 @@ export default async function AttribuesPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={ouverts.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">

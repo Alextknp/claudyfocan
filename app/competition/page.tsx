@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchEntreprisesSiret, lookupSiret } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchEntreprisesSiret, lookupSiret, fetchNavCounts } from "@/lib/metiers";
 import type { AO, DecpMarche, EntrepriseSiret } from "@/lib/metiers";
 import { YearFilter } from "@/app/components/year-filter";
 
@@ -168,11 +168,12 @@ export default async function CompetitionPage({
   const { year } = await searchParams;
   const supabase = createServerClient();
 
-  const [ouverts, allAttribues, allDecp, siretMap] = await Promise.all([
+  const [ouverts, allAttribues, allDecp, siretMap, navCounts] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
     fetchDecpMarches(supabase),
     fetchEntreprisesSiret(supabase),
+    fetchNavCounts(supabase),
   ]);
 
   const boampYears = allAttribues.map((a) => a.date_pub.slice(0, 4));
@@ -214,7 +215,7 @@ export default async function CompetitionPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={ouverts.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">

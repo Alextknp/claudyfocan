@@ -4,7 +4,7 @@ import Nav from "@/app/components/nav";
 import {
   METIERS, aoMatchesMetier, matchesMetier, parseCompanies,
   normalizeCompanyName, deadlineInfo, fmt, fetchAO,
-  fetchEntreprisesSiret, lookupSiret,
+  fetchEntreprisesSiret, lookupSiret, fetchNavCounts,
 } from "@/lib/metiers";
 import type { AO, EntrepriseSiret } from "@/lib/metiers";
 
@@ -39,10 +39,11 @@ function topCompetitors(
 export default async function HomePage() {
   const supabase = createServerClient();
 
-  const [allOuverts, attribues, siretMap] = await Promise.all([
+  const [allOuverts, attribues, siretMap, navCounts] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
     fetchEntreprisesSiret(supabase),
+    fetchNavCounts(supabase),
   ]);
 
   const now = new Date();
@@ -82,7 +83,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={enCours.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
 

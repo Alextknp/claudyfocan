@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier } from "@/lib/metiers";
+import { METIERS, matchesMetier, parseCompanies, normalizeCompanyName, fmt, fetchAO, fetchDecpMarches, decpMatchesMetier, fetchNavCounts } from "@/lib/metiers";
 import type { AO, DecpMarche } from "@/lib/metiers";
 
 interface WonLot {
@@ -73,10 +73,11 @@ export default async function EntreprisePage({
     : null;
 
   const supabase = createServerClient();
-  const [ouverts, allAttribues, allDecp] = await Promise.all([
+  const [ouverts, allAttribues, allDecp, navCounts] = await Promise.all([
     fetchAO(supabase, "ouvert"),
     fetchAO(supabase, "attribue"),
     fetchDecpMarches(supabase),
+    fetchNavCounts(supabase),
   ]);
 
   const attribues = year
@@ -138,7 +139,7 @@ export default async function EntreprisePage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={ouverts.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Breadcrumb */}

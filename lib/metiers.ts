@@ -235,6 +235,28 @@ export async function fetchEntreprisesSiret(
   return map;
 }
 
+export async function fetchNavCounts(
+  supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
+): Promise<{ enCours: number; enAttente: number; attribues: number; competition: number }> {
+  const [ouvertsRes, attribuesRes, siretRes] = await Promise.all([
+    supabase.from("appels_offres").select("deadline").eq("departement", "34").eq("statut", "ouvert"),
+    supabase.from("appels_offres").select("id", { count: "exact" }).eq("departement", "34").eq("statut", "attribue"),
+    supabase.from("entreprises_siret").select("id", { count: "exact" }),
+  ]);
+
+  const now = new Date();
+  const ouverts = ouvertsRes.data ?? [];
+  const enCours = ouverts.filter((ao) => !ao.deadline || new Date(ao.deadline) >= now).length;
+  const enAttente = ouverts.length - enCours;
+
+  return {
+    enCours,
+    enAttente,
+    attribues: attribuesRes.data?.length ?? 0,
+    competition: siretRes.data?.length ?? 0,
+  };
+}
+
 export async function fetchDecpMarches(
   supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
 ): Promise<DecpMarche[]> {

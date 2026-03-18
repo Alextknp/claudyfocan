@@ -5,12 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { getQuote } from "@/lib/quotes";
 
-const LINKS = [
-  { href: "/en-cours", label: "En cours" },
-  { href: "/expires", label: "En attente" },
-  { href: "/attribues", label: "Attribués" },
-  { href: "/competition", label: "Compétition" },
-];
+interface NavLink {
+  href: string;
+  label: string;
+  countKey: "enCours" | "enAttente" | "attribues" | "competition";
+}
 
 function SearchInput() {
   const [q, setQ] = useState("");
@@ -52,7 +51,21 @@ function SearchInput() {
   );
 }
 
-export default function Nav({ aoCount }: { aoCount: number }) {
+export interface NavCounts {
+  enCours: number;
+  enAttente: number;
+  attribues: number;
+  competition: number;
+}
+
+const LINKS: NavLink[] = [
+  { href: "/en-cours", label: "En cours", countKey: "enCours" },
+  { href: "/expires", label: "En attente", countKey: "enAttente" },
+  { href: "/attribues", label: "Attribués", countKey: "attribues" },
+  { href: "/competition", label: "Compétition", countKey: "competition" },
+];
+
+export default function Nav({ counts }: { counts: NavCounts }) {
   const pathname = usePathname();
   const quote = getQuote(pathname);
 
@@ -92,7 +105,7 @@ export default function Nav({ aoCount }: { aoCount: number }) {
                   active ? "text-cf-blue" : "text-neutral-500 hover:text-neutral-700"
                 }`}
               >
-                {l.label}
+                {l.label} <span className="text-neutral-400 font-normal">({counts[l.countKey].toLocaleString("fr-FR")})</span>
                 {active && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-cf-blue rounded-t" />
                 )}

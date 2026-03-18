@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { AO_FIELDS, parseCompanies, fmt, fetchAO } from "@/lib/metiers";
+import { AO_FIELDS, parseCompanies, fmt, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 
 export default async function AcheteurPage({
@@ -13,12 +13,7 @@ export default async function AcheteurPage({
   const acheteurName = decodeURIComponent(nom);
   const supabase = createServerClient();
 
-  // Get aoCount for Nav
-  const ouverts = await fetchAO(supabase, "ouvert");
-  const now = new Date();
-  const enCours = ouverts.filter(
-    (ao) => !ao.deadline || new Date(ao.deadline) >= now
-  );
+  const navCounts = await fetchNavCounts(supabase);
 
   // Fetch all AO for this acheteur
   const allAO: AO[] = [];
@@ -61,7 +56,7 @@ export default async function AcheteurPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={enCours.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         <h1 className="text-lg font-bold text-neutral-800 mb-1">{acheteurName}</h1>

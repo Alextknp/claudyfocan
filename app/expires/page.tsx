@@ -1,11 +1,14 @@
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { METIERS, aoMatchesMetier, matchesMetier, fmt, fetchAO } from "@/lib/metiers";
+import { METIERS, aoMatchesMetier, matchesMetier, fmt, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 
 export default async function ExpiresPage() {
   const supabase = createServerClient();
-  const ouverts = await fetchAO(supabase, "ouvert");
+  const [ouverts, navCounts] = await Promise.all([
+    fetchAO(supabase, "ouvert"),
+    fetchNavCounts(supabase),
+  ]);
 
   const now = new Date();
   const enCours = ouverts.filter(
@@ -24,7 +27,7 @@ export default async function ExpiresPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={enCours.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         <div className="mb-6">

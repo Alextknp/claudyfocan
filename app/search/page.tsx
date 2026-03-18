@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-import { AO_FIELDS, normalizeCompanyName, parseCompanies, fetchAO } from "@/lib/metiers";
+import { AO_FIELDS, normalizeCompanyName, parseCompanies, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 
 export default async function SearchPage({
@@ -13,17 +13,12 @@ export default async function SearchPage({
   const query = (q ?? "").trim();
   const supabase = createServerClient();
 
-  // Get aoCount for Nav
-  const ouverts = await fetchAO(supabase, "ouvert");
-  const now = new Date();
-  const enCours = ouverts.filter(
-    (ao) => !ao.deadline || new Date(ao.deadline) >= now
-  );
+  const navCounts = await fetchNavCounts(supabase);
 
   if (!query) {
     return (
       <main className="min-h-screen bg-neutral-50">
-        <Nav aoCount={enCours.length} />
+        <Nav counts={navCounts} />
         <div className="max-w-[1400px] mx-auto px-4 py-12 text-center">
           <h1 className="text-lg font-bold text-neutral-700 mb-2">Recherche</h1>
           <p className="text-sm text-neutral-500">Entrez un terme pour rechercher des appels d&apos;offres ou acheteurs.</p>
@@ -148,7 +143,7 @@ export default async function SearchPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <Nav aoCount={enCours.length} />
+      <Nav counts={navCounts} />
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         <h1 className="text-sm font-bold text-neutral-700 mb-1">
