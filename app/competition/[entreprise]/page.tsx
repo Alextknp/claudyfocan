@@ -152,10 +152,21 @@ export default async function EntreprisePage({
 
         {/* Header */}
         <h1 className="text-xl font-bold text-neutral-800 mb-1">{displayName}</h1>
-        <p className="text-sm text-neutral-500 mb-6">
-          {wonLots.length} lot{wonLots.length > 1 ? "s" : ""} gagné{wonLots.length > 1 ? "s" : ""}
-          {year ? ` en ${year}` : ""} &middot; {acheteurs.size} acheteur{acheteurs.size > 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center gap-3 mb-6">
+          <p className="text-sm text-neutral-500">
+            {wonLots.length} lot{wonLots.length > 1 ? "s" : ""} gagné{wonLots.length > 1 ? "s" : ""}
+            {activeMetier ? ` (${activeMetier.emoji} ${activeMetier.nom})` : ""}
+            {year ? ` en ${year}` : ""} &middot; {acheteurs.size} acheteur{acheteurs.size > 1 ? "s" : ""}
+          </p>
+          {activeMetier && (
+            <Link
+              href={`/competition/${encodeURIComponent(normalizedName)}${year ? `?year=${year}` : ""}`}
+              className="text-[11px] font-medium text-cf-blue hover:underline"
+            >
+              Voir tous les métiers
+            </Link>
+          )}
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
