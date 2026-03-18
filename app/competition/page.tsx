@@ -12,6 +12,9 @@ interface CompanyStats {
   count: number;
 }
 
+// Au-delà de ce seuil par lot, c'est une enveloppe accord-cadre pluriannuelle, pas un montant réel
+const MONTANT_MAX_LOT = 5_000_000;
+
 function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
   const stats = new Map<string, CompanyStats>();
   let totalLots = 0;
@@ -28,7 +31,8 @@ function buildLeaderboard(attribues: AO[], metier: typeof METIERS[number]) {
       totalLots++;
       aoIds.add(ao.id);
       const share = companies.length;
-      const lotMontant = lot.montant ? Number(lot.montant) : 0;
+      const rawMontant = lot.montant ? Number(lot.montant) : 0;
+      const lotMontant = Math.min(rawMontant, MONTANT_MAX_LOT);
       totalVolume += lotMontant;
 
       for (const company of companies) {
