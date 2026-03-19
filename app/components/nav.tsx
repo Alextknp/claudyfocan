@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 import { getQuote } from "@/lib/quotes";
 
 interface NavLink {
@@ -56,6 +56,7 @@ export interface NavCounts {
   enAttente: number;
   attribues: number;
   competition: number;
+  lastUpdate: string | null;
 }
 
 const LINKS: NavLink[] = [
@@ -65,9 +66,24 @@ const LINKS: NavLink[] = [
   { href: "/competition", label: "Compétition", countKey: "competition" },
 ];
 
+function useUpdateStatus(lastUpdate: string | null) {
+  return useMemo(() => {
+    if (!lastUpdate) return { label: null, cls: "text-neutral-400" };
+    const dt = new Date(lastUpdate);
+    const hoursAgo = (Date.now() - dt.getTime()) / (1000 * 60 * 60);
+    const dateStr = dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    const timeStr = dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const label = `MAJ ${dateStr} à ${timeStr}`;
+    if (hoursAgo > 48) return { label, cls: "text-red-500" };
+    if (hoursAgo > 24) return { label, cls: "text-orange-500" };
+    return { label, cls: "text-neutral-400" };
+  }, [lastUpdate]);
+}
+
 export default function Nav({ counts }: { counts: NavCounts }) {
   const pathname = usePathname();
   const quote = getQuote(pathname);
+  const updateStatus = useUpdateStatus(counts.lastUpdate);
 
   return (
     <>
@@ -112,7 +128,12 @@ export default function Nav({ counts }: { counts: NavCounts }) {
               </Link>
             );
           })}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            {updateStatus.label && (
+              <span className={`text-[10px] hidden sm:block whitespace-nowrap ${updateStatus.cls}`}>
+                {updateStatus.label}
+              </span>
+            )}
             <SearchInput />
           </div>
         </div>
