@@ -235,18 +235,26 @@ export async function fetchEntreprisesSiret(
   return map;
 }
 
+function aoMatchesAnyMetier(ao: { lots: AO["lots"]; cpv_codes: string[]; titre: string }): boolean {
+  return METIERS.some(
+    (m) =>
+      (ao.lots ?? []).some((lot) => matchesMetier(lot, m, ao.titre)) ||
+      (ao.cpv_codes ?? []).some((c) => m.codesDirects.includes(c))
+  );
+}
+
 export async function fetchNavCounts(
   supabase: ReturnType<typeof import("@/lib/supabase").createServerClient>
 ): Promise<{ enCours: number; enAttente: number; attribues: number; competition: number; lastUpdate: string | null }> {
   const [ouvertsRes, attribuesRes, siretRes, lastUpdateRes] = await Promise.all([
-    supabase.from("appels_offres").select("deadline").eq("departement", "34").eq("statut", "ouvert"),
+    supabase.from("appels_offres").select("deadline, lots, cpv_codes, titre").eq("departement", "34").eq("statut", "ouvert"),
     supabase.from("appels_offres").select("*", { count: "exact", head: true }).eq("departement", "34").eq("statut", "attribue"),
     supabase.from("entreprises_siret").select("*", { count: "exact", head: true }),
     supabase.from("appels_offres").select("updated_at").order("updated_at", { ascending: false }).limit(1).single(),
   ]);
 
   const now = new Date();
-  const ouverts = ouvertsRes.data ?? [];
+  const ouverts = (ouvertsRes.data ?? []).filter(aoMatchesAnyMetier);
   const enCours = ouverts.filter((ao) => !ao.deadline || new Date(ao.deadline) >= now).length;
   const enAttente = ouverts.length - enCours;
 
