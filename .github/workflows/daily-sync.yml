@@ -1,0 +1,28 @@
+name: Daily BOAMP Sync
+
+on:
+  schedule:
+    # Tous les jours a 6h30 UTC (comme le cron Vercel)
+    - cron: "30 6 * * *"
+  workflow_dispatch: # Permet de lancer manuellement depuis GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily sync
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SYNC_URL }}")
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Sync failed with status $http_code"
+            exit 1
+          fi
