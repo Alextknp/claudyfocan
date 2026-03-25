@@ -92,6 +92,7 @@ export async function GET(req: Request) {
             descripteur_libelle: (r.descripteur_libelle as string[]) ?? [],
             url_dce_telechargement: donnees.url_dce_telechargement,
             lots: donnees.lots,
+            updated_at: new Date().toISOString(),
           })
           .eq("id", row.id);
         if (!error) enriched++;
@@ -113,7 +114,7 @@ export async function GET(req: Request) {
       const ids = expiredAo.map((r) => r.id);
       const { count } = await supabase
         .from("appels_offres")
-        .update({ statut: "clos" })
+        .update({ statut: "clos", updated_at: new Date().toISOString() })
         .in("id", ids);
       closed = count ?? ids.length;
       log(`${closed} AO clôturés (deadline dépassée)`);
