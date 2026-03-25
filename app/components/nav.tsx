@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useMemo, type FormEvent } from "react";
+import { useState, useMemo, useCallback, type FormEvent } from "react";
 import { getQuote } from "@/lib/quotes";
 
 interface NavLink {
@@ -80,8 +80,57 @@ function useUpdateStatus(lastUpdate: string | null) {
   }, [lastUpdate]);
 }
 
+function SyncButton({ onSynced }: { onSynced: () => void }) {
+  const [syncing, setSyncing] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  const handleSync = useCallback(async () => {
+    setSyncing(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/sync/trigger", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setResult(`${data.ao_fetched ?? 0} AO`);
+        onSynced();
+      } else {
+        setResult("Erreur");
+      }
+    } catch {
+      setResult("Erreur");
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setResult(null), 3000);
+    }
+  }, [onSynced]);
+
+  return (
+    <button
+      onClick={handleSync}
+      disabled={syncing}
+      title="Forcer la synchronisation BOAMP"
+      className="text-[10px] px-2 py-0.5 rounded border border-neutral-200 hover:border-cf-blue hover:text-cf-blue transition-colors disabled:opacity-50 disabled:cursor-wait whitespace-nowrap"
+    >
+      {syncing ? (
+        <span className="inline-flex items-center gap-1">
+          <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Sync...
+        </span>
+      ) : result ? (
+        result
+      ) : (
+        "Sync"
+      )}
+    </button>
+  );
+}
+
 export default function Nav({ counts }: { counts: NavCounts }) {
   const pathname = usePathname();
+  const router = useRouter();
   const quote = getQuote(pathname);
   const updateStatus = useUpdateStatus(counts.lastUpdate);
 
@@ -134,6 +183,7 @@ export default function Nav({ counts }: { counts: NavCounts }) {
                 {updateStatus.label}
               </span>
             )}
+            <SyncButton onSynced={() => router.refresh()} />
             <SearchInput />
           </div>
         </div>
