@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 /**
  * POST /api/sync/trigger
  * Proxy côté serveur pour déclencher le daily-sync manuellement.
- * Pas d'auth client : le secret CRON_SECRET reste côté serveur.
- * POC usage interne (5 users).
+ * Construit l'URL à partir du host de la requête entrante.
  */
 export async function POST() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3002";
-
-  const cronUrl = `${baseUrl}/api/cron/daily-sync`;
-
   try {
+    const h = await headers();
+    const host = h.get("host") || "localhost:3002";
+    const protocol = host.startsWith("localhost") ? "http" : "https";
+    const cronUrl = `${protocol}://${host}/api/cron/daily-sync`;
+
     const res = await fetch(cronUrl, {
       method: "GET",
       headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
