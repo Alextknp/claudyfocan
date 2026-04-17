@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 import Nav from "@/app/components/nav";
 import { METIERS, aoMatchesMetier, matchesMetier, deadlineInfo, fmt, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
