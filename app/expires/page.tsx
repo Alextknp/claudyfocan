@@ -1,7 +1,5 @@
 import { createServerClient } from "@/lib/supabase";
 import Nav from "@/app/components/nav";
-
-export const dynamic = "force-dynamic";
 import { METIERS, aoMatchesMetier, matchesMetier, fmt, fetchAO, fetchNavCounts } from "@/lib/metiers";
 import type { AO } from "@/lib/metiers";
 

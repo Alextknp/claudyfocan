@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/app/components/footer";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Mr. Claudy Focan — Veille AO Bâtiment",
   description: "Outil de veille et d'analyse d'appels d'offres publics bâtiment — Hérault (34)",
